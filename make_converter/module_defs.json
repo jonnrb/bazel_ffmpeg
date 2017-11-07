@@ -1,0 +1,75 @@
+{ "source_groups":
+  { "FFT-OBJS": "c"
+  , "HEADERS": "h"
+  , "MMX-OBJS": "c"
+  , "OBJS": "c"
+  , "TLS-OBJS": "c"
+  , "X86ASM-OBJS": "asm"
+  }
+, "generated_groups":
+  { "group": "GEN_HEADERS"
+  , "gen_suf": "_tablegen.c"
+  , "out_suf": "_tables.h"
+  }
+, "modules":
+  { "avcodec":
+    { "dir_prefix": "libavcodec"
+    , "makefiles":
+      [ "libavcodec/Makefile"
+      , "libavcodec/x86/Makefile"
+      ]
+    }
+  , "avdevice":
+    { "dir_prefix": "libavdevice"
+    , "makefiles":
+      [ "libavdevice/Makefile"
+      ]
+    }
+  , "avfilter":
+    { "dir_prefix": "libavfilter"
+    , "makefiles":
+      [ "libavfilter/Makefile"
+      , "libavfilter/x86/Makefile"
+      ]
+    }
+  , "avformat":
+    { "dir_prefix": "libavformat"
+    , "makefiles":
+      [ "libavformat/Makefile"
+      ]
+    }
+  , "avresample":
+    { "dir_prefix": "libavresample"
+    , "makefiles":
+      [ "libavresample/Makefile"
+      ]
+    }
+  , "avutil":
+    { "dir_prefix": "libavutil"
+    , "makefiles":
+      [ "libavutil/Makefile"
+      , "libavutil/x86/Makefile"
+      ]
+    }
+  , "postproc":
+    { "dir_prefix": "libpostproc"
+    , "makefiles":
+      [ "libpostproc/Makefile"
+      ]
+    }
+  , "swresample":
+    { "dir_prefix": "libswresample"
+    , "makefiles":
+      [ "libswresample/Makefile"
+      , "libswresample/x86/Makefile"
+      ]
+    }
+  , "swscale":
+    { "dir_prefix": "libswscale"
+    , "makefiles":
+      [ "libswscale/Makefile"
+      , "libswscale/x86/Makefile"
+      ]
+    }
+  }
+}
