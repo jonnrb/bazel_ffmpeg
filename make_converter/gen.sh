@@ -6,7 +6,7 @@ echo 'SOURCES = {}' > make_data.bzl
 echo 'GEN_SOURCES = {}' >> make_data.bzl
 echo 'CONFIG = {}' > config_data.bzl
 
-bazel run :build_bazel_filegroups > out
+bazel run :build_make_data > out
 mv out make_data.bzl
 
 bazel run :build_config_data > out

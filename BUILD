@@ -4,6 +4,18 @@ load("@jonnrb_bazel_asm//rules:yasm_library.bzl", "yasm_library")
 load("//make_converter:configure.bzl", "configure")
 load(":common.bzl", "CC_COPTS", "CC_LINKOPTS", "YASM_COPTS")
 
+config_setting(
+    name = "linux",
+    values = {"cpu": "k8"},
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "macos",
+    values = {"cpu": "darwin"},
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "makefiles",
     visibility = ["//:__subpackages__"],
@@ -21,6 +33,7 @@ cc_library(
     copts = CC_COPTS,
     linkopts = CC_LINKOPTS,
     deps = [
+        ":avcodec",
         ":avdevice",
         ":avfilter",
         ":avformat",
@@ -33,15 +46,7 @@ cc_library(
 
 cc_binary(
     name = "ffmpeg",
-    srcs = [
-        "ffmpeg/fftools/ffmpeg.c",
-        "ffmpeg/fftools/ffmpeg.h",
-        "ffmpeg/fftools/ffmpeg_cuvid.c",
-        "ffmpeg/fftools/ffmpeg_filter.c",
-        "ffmpeg/fftools/ffmpeg_hw.c",
-        "ffmpeg/fftools/ffmpeg_opt.c",
-        "ffmpeg/fftools/ffmpeg_videotoolbox.c",
-    ],
+    srcs = [":ffmpeg_c"],
     copts = CC_COPTS,
     linkopts = CC_LINKOPTS,
     deps = [
@@ -90,15 +95,20 @@ cc_library(
     linkopts = CC_LINKOPTS + [
         # TODO: need to bundle these
         "-lz",
-        "-liconv",
         #"-llzma",
-    ],
+    ] + select({
+        ":macos": ["-liconv"],
+        ":linux": [],
+    }),
     visibility = ["//visibility:public"],
     deps = [
         ":avutil",
         ":config_h",
+        ":swresample",
         "@jonnrb_bazel_x264//:x264",
+        "@jonnrb_bazel_x264//:x264_isystem",
         "@jonnrb_bazel_x265//:x265",
+        "@jonnrb_bazel_x265//:x265_isystem",
     ],
 )
 
@@ -127,12 +137,25 @@ cc_library(
     copts = CC_COPTS + [
         "-include ffmpeg/libavutil/internal.h",
     ],
-    linkopts = CC_LINKOPTS,
+    linkopts = CC_LINKOPTS + select({
+        ":macos": [],
+        ":linux": [
+            "-lxcb",
+            "-lxcb-shape",
+            "-lxcb-shm",
+            "-lxcb-xfixes",
+        ],
+    }),
     visibility = ["//visibility:public"],
     deps = [
         #":avdevice_objc",
         ":config_h",
+        ":avcodec",
+        ":avfilter",
+        ":avformat",
         ":avutil",
+        ":swresample",
+        ":swscale",
     ],
 )
 
@@ -168,6 +191,8 @@ cc_library(
     deps = [
         ":avformat",
         ":avutil",
+        ":swresample",
+        ":swscale",
         ":config_h",
     ],
 )
@@ -209,6 +234,7 @@ cc_library(
         ":avcodec",
         ":avutil",
         ":config_h",
+        ":swresample",
         "@jonnrb_bazel_openssl//:crypto",
         "@jonnrb_bazel_openssl//:ssl",
     ],
@@ -266,6 +292,17 @@ cc_library(
         "-include ffmpeg/libavutil/internal.h",
         "-include ffmpeg/libavutil/intmath.h",
     ],
+    linkopts = select({
+        ":macos": [],
+        ":linux": [
+            "-lasound",
+            "-lva",
+            "-lva-drm",
+            "-lva-x11",
+            "-lvdpau",
+            "-lX11",
+        ],
+    }),
     visibility = ["//visibility:public"],
     deps = [
         ":config_h",

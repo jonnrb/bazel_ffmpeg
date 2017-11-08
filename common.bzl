@@ -4,10 +4,9 @@ CC_COPTS = [
     "-DPIC",
     "-fno-math-errno",
     "-fno-signed-zeros",
-    "-Qunused-arguments",
     "-include ffmpeg/config.h",
 ] + select({
-    "@bazel_tools//src:darwin": [
+    ":macos": [
         # yikes! but i want to supress these since i am on the application side.
         # and while i could just disable everything, i also like lists...
         "-Wno-absolute-value",
@@ -27,11 +26,12 @@ CC_COPTS = [
         "-Wno-unneeded-internal-declaration",
         "-Wno-unused-function",
         "-Wno-unused-const-variable",
-    ]
+    ],
+    ":linux": []
 })
 
 CC_LINKOPTS = select({
-    "@bazel_tools//src:darwin": [
+    ":macos": [
         "-framework QuartzCore",
         "-framework QuartzCore",
         "-framework AppKit",
@@ -57,8 +57,10 @@ CC_LINKOPTS = select({
         "-framework Security",
         "-framework CoreGraphics",
     ],
+    ":linux": []
 })
 
 YASM_COPTS = select({
-    "@bazel_tools//src:darwin": ["-f", "macho64", "-m", "amd64"],
-}) + ["-DPIC", "-DPREFIX"]
+    ":macos": ["-DPREFIX"],
+    ":linux": [],
+}) + ["-DPIC"]

@@ -37,19 +37,34 @@ def configure():
       cmd = "root=$$(pwd);" +
             "cd $$(dirname $(location ffmpeg/configure));" +
             "./configure --disable-avfoundation --disable-coreimage > /dev/null;" +
-            "sed -i '' -E 's/(CONFIG_OPENSSL) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_TLS_OPENSSL_PROTOCOL) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_LIBX264) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_LIBX264_ENCODER) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_LIBX264RGB_ENCODER) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_LIBX265) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_LIBX265_ENCODER) 0/\\1 1/' config.h;" +
-            "sed -i '' -E 's/(HAVE_VALGRIND_VALGRIND_H) 1/\\1 0/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_TIFF_DECODER) 1/\\1 0/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_TIFF_ENCODER) 1/\\1 0/' config.h;" +
-            "sed -i '' -E 's/(CONFIG_TIFF_PIPE_DEMUXER) 1/\\1 0/' config.h;" +
-            "mv config.h $$root/$(location ffmpeg/config.h);" +
-            "mv config.asm $$root/$(location ffmpeg/config.asm);" +
+            "sed -E -e 's/(CONFIG_OPENSSL) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_TLS_OPENSSL_PROTOCOL) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264RGB_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX265) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX265_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(HAVE_VALGRIND_VALGRIND_H) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_DECODER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_ENCODER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_PIPE_DEMUXER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_SDL2) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_SDL2_OUTDEV) 1/\\1 0/'" +
+            "       config.h > $$root/$(location ffmpeg/config.h);" +
+            "sed -E -e 's/(CONFIG_OPENSSL) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_TLS_OPENSSL_PROTOCOL) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX264RGB_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX265) 0/\\1 1/'" +
+            "       -e 's/(CONFIG_LIBX265_ENCODER) 0/\\1 1/'" +
+            "       -e 's/(HAVE_VALGRIND_VALGRIND_H) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_DECODER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_ENCODER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_TIFF_PIPE_DEMUXER) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_SDL2) 1/\\1 0/'" +
+            "       -e 's/(CONFIG_SDL2_OUTDEV) 1/\\1 0/'" +
+            "       config.asm > $$root/$(location ffmpeg/config.asm);" +
             "mv libavcodec/bsf_list.c $$root/$(location ffmpeg/libavcodec/bsf_list.c);" +
             "mv libavformat/protocol_list.c $$root/$(location ffmpeg/libavformat/protocol_list.c);" +
             "mv libavutil/avconfig.h $$root/$(location ffmpeg/libavutil/avconfig.h);" +
@@ -97,3 +112,21 @@ def configure():
         outs = [gen_prog["out"]],
         cmd = "$(location bin_{}) > $@".format(gen_prog["name"]),
     )
+
+  ffmpeg_srcs = [
+      "ffmpeg/fftools/ffmpeg.c",
+      "ffmpeg/fftools/ffmpeg.h",
+      "ffmpeg/fftools/ffmpeg_opt.c",
+      "ffmpeg/fftools/ffmpeg_filter.c",
+      "ffmpeg/fftools/ffmpeg_hw.c",
+  ]
+  if CONFIG.get("CONFIG_CUVID", False):
+    ffmpeg_srcs.append("ffmpeg/fftools/ffmpeg_cuvid.c")
+  if CONFIG.get("CONFIG_LIBMFX", False):
+    ffmpeg_srcs.append("ffmpeg/fftools/ffmpeg_qsv.c")
+  if CONFIG.get("CONFIG_VIDEOTOOLBOX", False) or CONFIG.get("CONFIG_VDA", False):
+    ffmpeg_srcs.append("ffmpeg/fftools/ffmpeg_videotoolbox.c")
+  native.filegroup(
+      name = "ffmpeg_c",
+      srcs = ffmpeg_srcs,
+  )

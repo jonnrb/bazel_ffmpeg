@@ -1,7 +1,7 @@
 py_binary(
-    name = "build_bazel_filegroups",
+    name = "build_make_data",
     srcs = [
-        "build_bazel_filegroups.py",
+        "build_make_data.py",
         "parse_makefile.py",
     ],
     data = [

@@ -51,6 +51,10 @@ def build_filegroups(source_groups, generated_groups, modules, out=sys.stdout):
           for f in parsed[generated_groups['group']]['']
         ]
 
+    if module_name == 'avutil':
+      module_sources['avutil_asm']['HAVE_MMX_EXTERNAL'] = [
+          'ffmpeg/libavutil/x86/emms.asm']
+
   out.write('SOURCES = ')
   json.dump(module_sources, out, indent=4, sort_keys=True)
   out.write('\nGEN_SOURCES = ')
@@ -60,7 +64,7 @@ def build_filegroups(source_groups, generated_groups, modules, out=sys.stdout):
 
 if __name__ == '__main__':
   if len(sys.argv) != 3:
-    print('usage: build_bazel_filegroups.py module_defs.json module_files.bzl')
+    print('usage: build_make_data.py module_defs.json make_data.bzl')
   with open(sys.argv[1], 'r') as i, open(sys.argv[2], 'w') as out:
     module_defs = json.load(i)
     build_filegroups(out=out, **module_defs)
